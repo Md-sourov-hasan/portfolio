@@ -7,7 +7,9 @@ import WorkSheet from './components/WorkSheet';
 import ExperienceSheet from './components/ExperienceSheet';
 import ContactSheet from './components/ContactSheet';
 import CustomCursor from './components/CustomCursor';
-import SplashScreen from './components/SplashScreen';
+// === INTRO OPTIONS (only one should be active at a time) ===
+// import SplashScreen from './components/SplashScreen';        // VIDEO intro
+import WelcomeSplash from './components/WelcomeSplash';         // SPLASH SCREEN intro (Welcome to Sourov slideshow)
 import { useLenis } from './hooks/useLenis';
 
 export default function App() {
@@ -37,7 +39,10 @@ export default function App() {
 
   return (
     <>
-      {showSplash && <SplashScreen onComplete={() => setShowSplash(false)} />}
+      {/* === INACTIVE: Video Splash — uncomment below & comment above to switch === */}
+      {/* {showSplash && <SplashScreen onComplete={() => setShowSplash(false)} />} */}
+      {/* === ACTIVE INTRO: Welcome Slideshow Splash === */}
+      {showSplash && <WelcomeSplash onComplete={() => setShowSplash(false)} />}
       <div className="scroll-container">
         <CustomCursor />
         <Nav scrollProgress={scrollProgress} />
@@ -54,3 +59,4 @@ export default function App() {
     </>
   );
 }
+

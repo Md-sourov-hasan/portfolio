@@ -1,155 +1,225 @@
+/* ============================================================
+   CINEMATIC VIDEO SPLASH SCREEN
+   ============================================================ */
+
 .splash-container {
   position: fixed;
   inset: 0;
-  z-index: 9999;
-  background: #03080f;
+  z-index: 99999;
+  background-color: #03080f;
   display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
   overflow: hidden;
-  transition: opacity 0.6s cubic-bezier(0.8, 0, 0.2, 1), transform 0.8s cubic-bezier(0.8, 0, 0.2, 1);
+  opacity: 1;
+  transform: scale(1);
+  filter: blur(0px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+              filter 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
 }
 
+/* Smooth exit animation */
 .splash-container.splash-exit {
   opacity: 0;
-  transform: translateY(-100%);
+  transform: scale(1.04);
+  filter: blur(8px);
   pointer-events: none;
 }
 
-/* Background subtle glow */
-.splash-container::before {
-  content: '';
+/* Background video */
+.splash-video {
   position: absolute;
-  width: 60vw;
-  height: 60vw;
-  background: radial-gradient(circle, rgba(0, 240, 255, 0.05) 0%, transparent 70%);
-  border-radius: 50%;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  animation: pulseGlow 3s ease-in-out infinite alternate;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  z-index: 1;
+  opacity: 0;
+  transform: translateZ(0) scale(1.02);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  filter: contrast(1.04) brightness(1.02) saturate(1.05);
+  transition: opacity 0.8s ease, transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.splash-content {
-  position: relative;
+.splash-video.loaded {
+  opacity: 1;
+  transform: translateZ(0) scale(1);
+}
+
+/* Light transparent gradient overlay only at the top/bottom edges for UI contrast */
+.splash-overlay {
+  position: absolute;
+  inset: 0;
   z-index: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 40px;
+  background: linear-gradient(
+    to bottom,
+    rgba(3, 8, 15, 0.4) 0%,
+    transparent 18%,
+    transparent 82%,
+    rgba(3, 8, 15, 0.35) 100%
+  );
+  pointer-events: none;
 }
 
-.splash-text-wrapper {
+/* Top bar with buttons */
+.splash-top-bar {
+  position: relative;
+  z-index: 10;
+  width: 100%;
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
+  padding: 24px 32px;
+  box-sizing: border-box;
+  animation: splashFadeIn 0.8s ease-out forwards;
+}
+
+/* Modern glassmorphic button */
+.splash-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(10, 22, 40, 0.65);
+  border: 1px solid rgba(34, 229, 240, 0.25);
+  color: #F0F6FF;
+  padding: 10px 18px;
+  border-radius: 9999px;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  font-size: 0.825rem;
+  letter-spacing: 0.04em;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), inset 0 0 10px rgba(34, 229, 240, 0.05);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.splash-btn:hover {
+  background: rgba(34, 229, 240, 0.15);
+  border-color: rgba(34, 229, 240, 0.7);
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(34, 229, 240, 0.3), inset 0 0 15px rgba(34, 229, 240, 0.15);
+}
+
+.splash-btn:active {
+  transform: translateY(0);
+}
+
+.splash-btn svg {
+  flex-shrink: 0;
+}
+
+/* Badge showing countdown inside Skip button */
+.splash-badge {
+  display: inline-block;
+  background: rgba(34, 229, 240, 0.2);
+  border: 1px solid rgba(34, 229, 240, 0.4);
+  color: #22E5F0;
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  min-width: 18px;
   text-align: center;
 }
 
-.splash-line {
-  display: block;
-  opacity: 0;
-  transform: translateY(20px);
-  animation: revealText 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-}
-
-.line-1 {
-  font-family: var(--font-mono, monospace);
-  font-size: 1rem;
-  color: rgba(0, 240, 255, 0.8);
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  margin-bottom: 10px;
-  animation-delay: 0.2s;
-}
-
-.line-2 {
-  font-family: var(--font-display, sans-serif);
-  font-size: clamp(3rem, 8vw, 6rem);
-  font-weight: 800;
-  color: #ffffff;
-  letter-spacing: -0.02em;
-  line-height: 1;
-  text-shadow: 0 0 30px rgba(0, 240, 255, 0.2);
-  animation-delay: 0.4s;
-}
-
-.line-3 {
-  font-family: var(--font-display, sans-serif);
-  font-size: clamp(2rem, 5vw, 4rem);
-  font-weight: 700;
-  color: transparent;
-  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.8);
-  letter-spacing: 0.05em;
-  margin-top: -5px;
-  animation-delay: 0.6s;
-}
-
-/* Progress bar line */
-.splash-progress {
-  width: 160px;
-  height: 2px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 2px;
-  overflow: hidden;
+/* Center decorative pulse */
+.splash-center-tag {
   position: relative;
-  opacity: 0;
-  animation: fadeIn 0.5s ease forwards 1s;
+  z-index: 5;
+  pointer-events: none;
 }
 
-.splash-progress-bar {
+.splash-pulse-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22E5F0;
+  box-shadow: 0 0 12px #22E5F0;
+  animation: splashPulse 2s infinite ease-in-out;
+}
+
+/* Bottom Progress Track */
+.splash-progress-track {
   position: absolute;
-  top: 0;
+  bottom: 0;
   left: 0;
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  z-index: 10;
+  overflow: hidden;
+}
+
+.splash-progress-fill {
   height: 100%;
   width: 0%;
-  background: #00f0ff;
-  box-shadow: 0 0 10px #00f0ff;
-  animation: progressFill 2.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  background: linear-gradient(90deg, #22E5F0 0%, #FFD166 100%);
+  box-shadow: 0 0 12px rgba(34, 229, 240, 0.8), 0 0 24px rgba(255, 209, 102, 0.4);
+  animation: splashProgressAnim 7s linear forwards;
 }
 
-@keyframes revealText {
-  0% {
-    opacity: 0;
-    transform: translateY(20px) scale(0.95);
-    filter: blur(10px);
-  }
-
-  100% {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    filter: blur(0);
-  }
-}
-
-@keyframes fadeIn {
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes progressFill {
+/* Keyframes */
+@keyframes splashProgressAnim {
   0% {
     width: 0%;
   }
-
-  50% {
-    width: 70%;
-  }
-
   100% {
     width: 100%;
   }
 }
 
-@keyframes pulseGlow {
+@keyframes splashFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes splashPulse {
   0% {
-    transform: translate(-50%, -50%) scale(0.8);
-    opacity: 0.5;
+    transform: scale(0.9);
+    opacity: 0.4;
+  }
+  50% {
+    transform: scale(1.6);
+    opacity: 0.9;
+    box-shadow: 0 0 20px #22E5F0;
+  }
+  100% {
+    transform: scale(0.9);
+    opacity: 0.4;
+  }
+}
+
+/* Responsive styles */
+@media (max-width: 640px) {
+  .splash-top-bar {
+    padding: 16px 20px;
   }
 
-  100% {
-    transform: translate(-50%, -50%) scale(1.2);
-    opacity: 1;
+  .splash-btn {
+    padding: 8px 14px;
+    font-size: 0.75rem;
+  }
+
+  .splash-sound-btn span {
+    display: none; /* Icon only on mobile */
+  }
+
+  .splash-sound-btn {
+    padding: 8px 10px;
   }
 }
